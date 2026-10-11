@@ -1,0 +1,322 @@
+# Upstream API review checklist
+
+All statically detected route decorators in tracked Python source. Every route requires a retain/adapt/exclude decision before parity release; listed does not mean implemented.
+
+## `AppImage/scripts/flask_auth_routes.py`
+
+- [ ] Line 102: `@auth_bp.route('/api/auth/status', methods=['GET'])`
+- [ ] Line 123: `@auth_bp.route('/api/ssl/status', methods=['GET'])`
+- [ ] Line 168: `@auth_bp.route('/api/ssl/configure', methods=['POST'])`
+- [ ] Line 222: `@auth_bp.route('/api/ssl/disable', methods=['POST'])`
+- [ ] Line 252: `@auth_bp.route('/api/ssl/reload', methods=['POST'])`
+- [ ] Line 343: `@auth_bp.route('/api/ssl/validate', methods=['POST'])`
+- [ ] Line 360: `@auth_bp.route('/api/auth/decline', methods=['POST'])`
+- [ ] Line 385: `@auth_bp.route('/api/auth/login', methods=['POST'])`
+- [ ] Line 436: `@auth_bp.route('/api/auth/setup', methods=['POST'])`
+- [ ] Line 456: `@auth_bp.route('/api/auth/enable', methods=['POST'])`
+- [ ] Line 470: `@auth_bp.route('/api/auth/disable', methods=['POST'])`
+- [ ] Line 488: `@auth_bp.route('/api/auth/change-password', methods=['POST'])`
+- [ ] Line 512: `@auth_bp.route('/api/auth/skip', methods=['POST'])`
+- [ ] Line 540: `@auth_bp.route('/api/auth/totp/setup', methods=['POST'])`
+- [ ] Line 566: `@auth_bp.route('/api/auth/totp/enable', methods=['POST'])`
+- [ ] Line 592: `@auth_bp.route('/api/auth/totp/disable', methods=['POST'])`
+- [ ] Line 619: `@auth_bp.route('/api/auth/generate-api-token', methods=['POST'])`
+- [ ] Line 698: `@auth_bp.route('/api/auth/api-tokens', methods=['GET'])`
+- [ ] Line 723: `@auth_bp.route('/api/auth/api-tokens/<token_id>', methods=['DELETE'])`
+- [ ] Line 763: `@auth_bp.route('/api/auth/profile', methods=['GET'])`
+- [ ] Line 778: `@auth_bp.route('/api/auth/profile', methods=['PUT'])`
+- [ ] Line 800: `@auth_bp.route('/api/auth/profile/avatar', methods=['GET'])`
+- [ ] Line 823: `@auth_bp.route('/api/auth/profile/avatar', methods=['POST'])`
+- [ ] Line 859: `@auth_bp.route('/api/auth/profile/avatar', methods=['DELETE'])`
+
+## `AppImage/scripts/flask_health_routes.py`
+
+- [ ] Line 19: `@health_bp.route('/api/health/status', methods=['GET'])`
+- [ ] Line 28: `@health_bp.route('/api/health/details', methods=['GET'])`
+- [ ] Line 37: `@health_bp.route('/api/system-info', methods=['GET'])`
+- [ ] Line 60: `@health_bp.route('/api/health/acknowledge', methods=['POST'])`
+- [ ] Line 158: `@health_bp.route('/api/health/un-acknowledge', methods=['POST'])`
+- [ ] Line 205: `@health_bp.route('/api/health/active-errors', methods=['GET'])`
+- [ ] Line 215: `@health_bp.route('/api/health/dismissed', methods=['GET'])`
+- [ ] Line 227: `@health_bp.route('/api/health/full', methods=['GET'])`
+- [ ] Line 273: `@health_bp.route('/api/health/cleanup-orphans', methods=['POST'])`
+- [ ] Line 333: `@health_bp.route('/api/health/pending-notifications', methods=['GET'])`
+- [ ] Line 345: `@health_bp.route('/api/health/mark-notified', methods=['POST'])`
+- [ ] Line 366: `@health_bp.route('/api/health/settings', methods=['GET'])`
+- [ ] Line 379: `@health_bp.route('/api/health/settings', methods=['POST'])`
+- [ ] Line 424: `@health_bp.route('/api/health/remote-storages', methods=['GET'])`
+- [ ] Line 474: `@health_bp.route('/api/health/storage-exclusions', methods=['GET'])`
+- [ ] Line 484: `@health_bp.route('/api/health/storage-exclusions', methods=['POST'])`
+- [ ] Line 537: `@health_bp.route('/api/health/storage-exclusions/<storage_name>', methods=['DELETE'])`
+- [ ] Line 557: `@health_bp.route('/api/health/interfaces', methods=['GET'])`
+- [ ] Line 617: `@health_bp.route('/api/health/interface-exclusions', methods=['GET'])`
+- [ ] Line 627: `@health_bp.route('/api/health/interface-exclusions', methods=['POST'])`
+- [ ] Line 679: `@health_bp.route('/api/health/interface-exclusions/<interface_name>', methods=['DELETE'])`
+- [ ] Line 695: `@health_bp.route('/api/mounts', methods=['GET'])`
+
+## `AppImage/scripts/flask_notification_routes.py`
+
+- [ ] Line 282: `@notification_bp.route('/api/notifications/settings', methods=['GET'])`
+- [ ] Line 297: `@notification_bp.route('/api/notifications/settings', methods=['POST'])`
+- [ ] Line 316: `@notification_bp.route('/api/notifications/reveal-secret', methods=['POST'])`
+- [ ] Line 384: `@notification_bp.route('/api/notifications/test', methods=['POST'])`
+- [ ] Line 431: `@notification_bp.route('/api/notifications/provider-models', methods=['POST'])`
+- [ ] Line 620: `@notification_bp.route('/api/notifications/test-ai', methods=['POST'])`
+- [ ] Line 736: `@notification_bp.route('/api/notifications/status', methods=['GET'])`
+- [ ] Line 751: `@notification_bp.route('/api/notifications/history', methods=['GET'])`
+- [ ] Line 794: `@notification_bp.route('/api/notifications/history', methods=['DELETE'])`
+- [ ] Line 809: `@notification_bp.route('/api/notifications/send', methods=['POST'])`
+- [ ] Line 1282: `@notification_bp.route('/api/notifications/proxmox/setup-webhook', methods=['POST'])`
+- [ ] Line 1358: `@notification_bp.route('/api/notifications/proxmox/cleanup-webhook', methods=['POST'])`
+- [ ] Line 1365: `@notification_bp.route('/api/notifications/proxmox/read-cfg', methods=['GET'])`
+- [ ] Line 1424: `@notification_bp.route('/api/notifications/proxmox/restore-cfg', methods=['POST'])`
+- [ ] Line 1476: `@notification_bp.route('/api/notifications/webhook', methods=['POST'])`
+- [ ] Line 1628: `@notification_bp.route('/api/internal/shutdown-event', methods=['POST'])`
+- [ ] Line 1671: `@notification_bp.route('/api/internal/restore-event', methods=['POST'])`
+
+## `AppImage/scripts/flask_oci_routes.py`
+
+- [ ] Line 26: `@oci_bp.route("/catalog", methods=["GET"])`
+- [ ] Line 49: `@oci_bp.route("/catalog/<app_id>", methods=["GET"])`
+- [ ] Line 83: `@oci_bp.route("/storages", methods=["GET"])`
+- [ ] Line 106: `@oci_bp.route("/catalog/<app_id>/schema", methods=["GET"])`
+- [ ] Line 145: `@oci_bp.route("/installed", methods=["GET"])`
+- [ ] Line 168: `@oci_bp.route("/installed/<app_id>", methods=["GET"])`
+- [ ] Line 201: `@oci_bp.route("/installed/<app_id>/logs", methods=["GET"])`
+- [ ] Line 236: `@oci_bp.route("/deploy", methods=["POST"])`
+- [ ] Line 293: `@oci_bp.route("/installed/<app_id>/start", methods=["POST"])`
+- [ ] Line 309: `@oci_bp.route("/installed/<app_id>/stop", methods=["POST"])`
+- [ ] Line 325: `@oci_bp.route("/installed/<app_id>/restart", methods=["POST"])`
+- [ ] Line 341: `@oci_bp.route("/installed/<app_id>", methods=["DELETE"])`
+- [ ] Line 367: `@oci_bp.route("/installed/<app_id>/config", methods=["PUT"])`
+- [ ] Line 403: `@oci_bp.route("/networks", methods=["GET"])`
+- [ ] Line 426: `@oci_bp.route("/runtime", methods=["GET"])`
+- [ ] Line 449: `@oci_bp.route("/runtime/install-script", methods=["GET"])`
+- [ ] Line 479: `@oci_bp.route("/status/<app_id>", methods=["GET"])`
+- [ ] Line 503: `@oci_bp.route("/installed/<app_id>/update-auth-key", methods=["POST"])`
+- [ ] Line 548: `@oci_bp.route("/installed/<app_id>/update-check", methods=["GET"])`
+- [ ] Line 567: `@oci_bp.route("/installed/<app_id>/update", methods=["POST"])`
+
+## `AppImage/scripts/flask_proxmenux_routes.py`
+
+- [ ] Line 176: `@proxmenux_bp.route('/api/proxmenux/update-status', methods=['GET'])`
+- [ ] Line 215: `@proxmenux_bp.route('/api/proxmenux/installed-tools', methods=['GET'])`
+- [ ] Line 320: `@proxmenux_bp.route('/api/updates/post-install', methods=['GET'])`
+- [ ] Line 349: `@proxmenux_bp.route('/api/updates/post-install/scan', methods=['POST'])`
+- [ ] Line 374: `@proxmenux_bp.route('/api/proxmenux/snippets-storage', methods=['GET'])`
+- [ ] Line 445: `@proxmenux_bp.route('/api/proxmenux/snippets-storage', methods=['POST'])`
+- [ ] Line 498: `@proxmenux_bp.route('/api/proxmenux/tool-source/<tool_key>', methods=['GET'])`
+
+## `AppImage/scripts/flask_security_routes.py`
+
+- [ ] Line 25: `@security_bp.route('/api/security/firewall/status', methods=['GET'])`
+- [ ] Line 38: `@security_bp.route('/api/security/firewall/enable', methods=['POST'])`
+- [ ] Line 53: `@security_bp.route('/api/security/firewall/disable', methods=['POST'])`
+- [ ] Line 68: `@security_bp.route('/api/security/firewall/rules', methods=['POST'])`
+- [ ] Line 96: `@security_bp.route('/api/security/firewall/rules', methods=['DELETE'])`
+- [ ] Line 117: `@security_bp.route('/api/security/firewall/rules/edit', methods=['PUT'])`
+- [ ] Line 152: `@security_bp.route('/api/security/firewall/monitor-port', methods=['POST'])`
+- [ ] Line 165: `@security_bp.route('/api/security/firewall/monitor-port', methods=['DELETE'])`
+- [ ] Line 182: `@security_bp.route('/api/security/fail2ban/details', methods=['GET'])`
+- [ ] Line 195: `@security_bp.route('/api/security/fail2ban/unban', methods=['POST'])`
+- [ ] Line 214: `@security_bp.route('/api/security/fail2ban/jail/config', methods=['PUT'])`
+- [ ] Line 239: `@security_bp.route('/api/security/fail2ban/trusted-networks', methods=['GET'])`
+- [ ] Line 266: `@security_bp.route('/api/security/fail2ban/trusted-networks', methods=['POST'])`
+- [ ] Line 281: `@security_bp.route('/api/security/fail2ban/trusted-networks', methods=['DELETE'])`
+- [ ] Line 296: `@security_bp.route('/api/security/fail2ban/trusted-networks', methods=['PUT'])`
+- [ ] Line 313: `@security_bp.route('/api/security/fail2ban/apply-jails', methods=['POST'])`
+- [ ] Line 326: `@security_bp.route('/api/security/fail2ban/activity', methods=['GET'])`
+- [ ] Line 343: `@security_bp.route('/api/security/lynis/run', methods=['POST'])`
+- [ ] Line 356: `@security_bp.route('/api/security/lynis/status', methods=['GET'])`
+- [ ] Line 369: `@security_bp.route('/api/security/lynis/report', methods=['GET'])`
+- [ ] Line 385: `@security_bp.route('/api/security/lynis/report', methods=['DELETE'])`
+- [ ] Line 410: `@security_bp.route('/api/security/fail2ban/uninstall', methods=['POST'])`
+- [ ] Line 423: `@security_bp.route('/api/security/lynis/uninstall', methods=['POST'])`
+- [ ] Line 440: `@security_bp.route('/api/security/tools', methods=['GET'])`
+
+## `AppImage/scripts/flask_server.py`
+
+- [ ] Line 3438: `@app.route('/')`
+- [ ] Line 3508: `@app.route('/manifest.json')`
+- [ ] Line 3543: `@app.route('/sw.js')`
+- [ ] Line 3571: `@app.route('/_next/<path:filename>')`
+- [ ] Line 3597: `@app.route('/<path:filename>')`
+- [ ] Line 3621: `@app.route('/images/<path:filename>')`
+- [ ] Line 5491: `@app.route('/api/storage/summary', methods=['GET'])`
+- [ ] Line 5567: `@app.route('/api/storage/observations', methods=['GET'])`
+- [ ] Line 9429: `@app.route('/api/system', methods=['GET'])`
+- [ ] Line 9517: `@app.route('/api/processes', methods=['GET'])`
+- [ ] Line 9761: `@app.route('/api/processes/<int:pid>', methods=['GET'])`
+- [ ] Line 9929: `@app.route('/api/temperature/history', methods=['GET'])`
+- [ ] Line 9943: `@app.route('/api/disk/<disk_name>/temperature/history', methods=['GET'])`
+- [ ] Line 9968: `@app.route('/api/network/latency/history', methods=['GET'])`
+- [ ] Line 9990: `@app.route('/api/network/latency/current', methods=['GET'])`
+- [ ] Line 10006: `@app.route('/api/storage', methods=['GET'])`
+- [ ] Line 10012: `@app.route('/api/proxmox-storage', methods=['GET'])`
+- [ ] Line 10213: `@app.route('/api/storage/smart/<disk_name>', methods=['GET'])`
+- [ ] Line 10948: `@app.route('/api/storage/smart/<disk_name>/history', methods=['GET'])`
+- [ ] Line 10969: `@app.route('/api/storage/smart/<disk_name>/history/<filename>', methods=['GET'])`
+- [ ] Line 10989: `@app.route('/api/storage/smart/<disk_name>/history/<filename>', methods=['DELETE'])`
+- [ ] Line 11011: `@app.route('/api/storage/smart/<disk_name>/latest', methods=['GET'])`
+- [ ] Line 11058: `@app.route('/api/storage/smart/<disk_name>/test', methods=['POST'])`
+- [ ] Line 11316: `@app.route('/api/storage/smart/schedules', methods=['GET'])`
+- [ ] Line 11324: `@app.route('/api/storage/smart/schedules', methods=['POST'])`
+- [ ] Line 11371: `@app.route('/api/storage/smart/schedules/<schedule_id>', methods=['DELETE'])`
+- [ ] Line 11395: `@app.route('/api/storage/smart/schedules/toggle', methods=['POST'])`
+- [ ] Line 11418: `@app.route('/api/storage/smart/tools', methods=['GET'])`
+- [ ] Line 11426: `@app.route('/api/storage/smart/tools/install', methods=['POST'])`
+- [ ] Line 11519: `@app.route('/api/network', methods=['GET'])`
+- [ ] Line 11525: `@app.route('/api/network/summary', methods=['GET'])`
+- [ ] Line 11599: `@app.route('/api/network/<interface_name>/metrics', methods=['GET'])`
+- [ ] Line 11696: `@app.route('/api/vms', methods=['GET'])`
+- [ ] Line 11703: `@app.route('/api/vms/<int:vmid>/metrics', methods=['GET'])`
+- [ ] Line 12087: `@app.route('/api/node/metrics', methods=['GET'])`
+- [ ] Line 12334: `@app.route('/api/logs/counts', methods=['GET'])`
+- [ ] Line 12392: `@app.route('/api/logs', methods=['GET'])`
+- [ ] Line 12510: `@app.route('/api/logs/download', methods=['GET'])`
+- [ ] Line 12569: `@app.route('/api/notifications', methods=['GET'])`
+- [ ] Line 12684: `@app.route('/api/notifications/download', methods=['GET'])`
+- [ ] Line 12738: `@app.route('/api/backups', methods=['GET'])`
+- [ ] Line 12825: `@app.route('/api/backup-storages', methods=['GET'])`
+- [ ] Line 12889: `@app.route('/api/vms/<int:vmid>/backup', methods=['POST'])`
+- [ ] Line 13059: `@app.route('/api/vms/<int:vmid>/backups', methods=['GET'])`
+- [ ] Line 13169: `@app.route('/api/events', methods=['GET'])`
+- [ ] Line 13246: `@app.route('/api/task-log/<path:upid>')`
+- [ ] Line 13351: `@app.route('/api/health', methods=['GET'])`
+- [ ] Line 13380: `@app.route('/api/managed-installs', methods=['GET'])`
+- [ ] Line 13403: `@app.route('/api/managed-installs/refresh', methods=['POST'])`
+- [ ] Line 13422: `@app.route('/api/lxc-updates/detection', methods=['GET'])`
+- [ ] Line 13435: `@app.route('/api/lxc-updates/detection', methods=['POST'])`
+- [ ] Line 13481: `@app.route('/api/vms/<int:vmid>/apps', methods=['GET'])`
+- [ ] Line 13497: `@app.route('/api/vms/<int:vmid>/apps', methods=['POST'])`
+- [ ] Line 13512: `@app.route('/api/vms/<int:vmid>/apps/test', methods=['POST'])`
+- [ ] Line 13532: `@app.route('/api/vms/<int:vmid>/apps/<app_id>', methods=['PUT'])`
+- [ ] Line 13548: `@app.route('/api/vms/<int:vmid>/apps/<app_id>', methods=['DELETE'])`
+- [ ] Line 13561: `@app.route('/api/vms/<int:vmid>/apps', methods=['DELETE'])`
+- [ ] Line 13574: `@app.route('/api/vms/<int:vmid>/apps/<app_id>/check', methods=['POST'])`
+- [ ] Line 13588: `@app.route('/api/vms/<int:vmid>/apps/check', methods=['POST'])`
+- [ ] Line 13602: `@app.route('/api/vms/<int:vmid>/schedule', methods=['GET', 'PUT', 'DELETE'])`
+- [ ] Line 13643: `@app.route('/api/vms/<int:vmid>/schedule/log', methods=['GET'])`
+- [ ] Line 13679: `@app.route('/api/vms/<int:vmid>/bulk-update', methods=['GET', 'PUT', 'DELETE'])`
+- [ ] Line 13714: `@app.route('/api/vms/<int:vmid>/bulk-update/plan', methods=['POST'])`
+- [ ] Line 13734: `@app.route('/api/vms/<int:vmid>/apps/suggestions', methods=['GET', 'POST'])`
+- [ ] Line 13769: `@app.route('/api/vms/<int:vmid>/docker/inventory', methods=['GET'])`
+- [ ] Line 13786: `@app.route('/api/apps/catalog', methods=['GET'])`
+- [ ] Line 13800: `@app.route('/api/apps/github-token', methods=['GET'])`
+- [ ] Line 13816: `@app.route('/api/apps/github-token', methods=['PUT'])`
+- [ ] Line 13838: `@app.route('/api/apps/github-token', methods=['DELETE'])`
+- [ ] Line 13848: `@app.route('/api/lxc-apps/dockerhub-tag-preview', methods=['POST'])`
+- [ ] Line 13871: `@app.route('/api/apps/custom-links', methods=['GET'])`
+- [ ] Line 13881: `@app.route('/api/apps/custom-links', methods=['POST'])`
+- [ ] Line 13895: `@app.route('/api/apps/custom-links/<link_id>', methods=['PUT'])`
+- [ ] Line 13910: `@app.route('/api/apps/custom-links/<link_id>', methods=['DELETE'])`
+- [ ] Line 13923: `@app.route('/api/apps/categories', methods=['GET'])`
+- [ ] Line 13937: `@app.route('/api/apps/suggest_category', methods=['GET'])`
+- [ ] Line 13951: `@app.route('/api/apps/catalog/<slug>', methods=['GET'])`
+- [ ] Line 13969: `@app.route('/api/vms/<int:vmid>/apps/dismiss', methods=['POST'])`
+- [ ] Line 14413: `@app.route('/api/lxc-updates/<int:vmid>/applied', methods=['POST'])`
+- [ ] Line 14449: `@app.route('/api/health/thresholds', methods=['GET'])`
+- [ ] Line 14466: `@app.route('/api/health/thresholds', methods=['PUT'])`
+- [ ] Line 14486: `@app.route('/api/health/thresholds/reset', methods=['POST'])`
+- [ ] Line 14506: `@app.route('/api/health/acknowledge', methods=['POST'])`
+- [ ] Line 14535: `@app.route('/api/health/un-acknowledge', methods=['POST'])`
+- [ ] Line 14563: `@app.route('/api/prometheus', methods=['GET'])`
+- [ ] Line 14827: `@app.route('/api/info', methods=['GET'])`
+- [ ] Line 14856: `@app.route('/api/hardware', methods=['GET'])`
+- [ ] Line 14895: `@app.route('/api/hardware/live', methods=['GET'])`
+- [ ] Line 14923: `@app.route('/api/gpu/<slot>/realtime', methods=['GET'])`
+- [ ] Line 14998: `@app.route('/api/vms/modal-cache-all', methods=['GET'])`
+- [ ] Line 15061: `@app.route('/api/vms/<int:vmid>', methods=['GET'])`
+- [ ] Line 15142: `@app.route('/api/lxc/<int:vmid>/mount-points', methods=['GET'])`
+- [ ] Line 15173: `@app.route('/api/lxc/<int:vmid>/mount-points/runtime', methods=['GET'])`
+- [ ] Line 15198: `@app.route('/api/vms/<int:vmid>/logs', methods=['GET'])`
+- [ ] Line 15246: `@app.route('/api/vms/<int:vmid>/firewall/log', methods=['GET'])`
+- [ ] Line 15345: `@app.route('/api/vms/<int:vmid>/config', methods=['POST'])`
+- [ ] Line 15448: `@app.route('/api/vms/<int:vmid>/control', methods=['POST'])`
+- [ ] Line 15548: `@app.route('/api/vms/<int:vmid>/description', methods=['PUT'])`
+- [ ] Line 15549: `@app.route('/api/vms/<int:vmid>/config', methods=['PUT'])  # legacy alias`
+- [ ] Line 15606: `@app.route('/api/scripts/execute', methods=['POST'])`
+- [ ] Line 15651: `@app.route('/api/scripts/status/<session_id>', methods=['GET'])`
+- [ ] Line 15661: `@app.route('/api/scripts/respond', methods=['POST'])`
+- [ ] Line 15676: `@app.route('/api/scripts/logs/<session_id>', methods=['GET'])`
+- [ ] Line 16103: `@app.route('/api/host-backups/jobs', methods=['GET'])`
+- [ ] Line 16116: `@app.route('/api/host-backups/jobs/<job_id>/run', methods=['POST'])`
+- [ ] Line 16143: `@app.route('/api/host-backups/jobs/<job_id>/toggle', methods=['POST'])`
+- [ ] Line 16199: `@app.route('/api/host-backups/jobs/<job_id>', methods=['DELETE'])`
+- [ ] Line 16339: `@app.route('/api/host-backups/pve-vzdump-jobs', methods=['GET'])`
+- [ ] Line 16353: `@app.route('/api/host-backups/default-paths', methods=['GET'])`
+- [ ] Line 16721: `@app.route('/api/host-backups/destinations', methods=['GET'])`
+- [ ] Line 17107: `@app.route('/api/host-backups/pbs-encryption/keyfile-info', methods=['GET'])`
+- [ ] Line 17174: `@app.route('/api/host-backups/pbs-encryption/remove', methods=['POST'])`
+- [ ] Line 17223: `@app.route('/api/host-backups/pbs-encryption/passphrase', methods=['POST'])`
+- [ ] Line 17254: `@app.route('/api/host-backups/pbs-recovery/status', methods=['GET'])`
+- [ ] Line 17306: `@app.route('/api/host-backups/restore/status', methods=['GET'])`
+- [ ] Line 17317: `@app.route('/api/host-backups/restore/dismiss', methods=['POST'])`
+- [ ] Line 17338: `@app.route('/api/host-backups/restore/history', methods=['GET'])`
+- [ ] Line 17381: `@app.route('/api/host-backups/restore/log', methods=['GET'])`
+- [ ] Line 17429: `@app.route('/api/host-backups/pbs-encryption/import', methods=['POST'])`
+- [ ] Line 17647: `@app.route('/api/host-backups/pbs-encryption/download-keyfile', methods=['GET'])`
+- [ ] Line 17673: `@app.route('/api/host-backups/pbs-encryption/discover-pve-keyfiles', methods=['GET'])`
+- [ ] Line 17702: `@app.route('/api/host-backups/pbs-encryption/set-escrow-mode', methods=['POST'])`
+- [ ] Line 17765: `@app.route('/api/host-backups/pbs-recovery/setup', methods=['POST'])`
+- [ ] Line 17831: `@app.route('/api/host-backups/pbs-recovery/available', methods=['GET'])`
+- [ ] Line 17902: `@app.route('/api/host-backups/pbs-recovery/restore', methods=['POST'])`
+- [ ] Line 17973: `@app.route('/api/host-backups/pbs-recovery/setup', methods=['DELETE'])`
+- [ ] Line 18125: `@app.route('/api/host-backups/destinations/capacity', methods=['POST'])`
+- [ ] Line 18179: `@app.route('/api/host-backups/calendar-preview', methods=['POST'])`
+- [ ] Line 18287: `@app.route('/api/host-backups/jobs', methods=['POST'])`
+- [ ] Line 18692: `@app.route('/api/host-backups/jobs/<job_id>', methods=['GET'])`
+- [ ] Line 18707: `@app.route('/api/host-backups/jobs/<job_id>/log', methods=['GET'])`
+- [ ] Line 18752: `@app.route('/api/host-backups/jobs/<job_id>', methods=['PUT'])`
+- [ ] Line 19072: `@app.route('/api/host-backups/manual-run', methods=['POST'])`
+- [ ] Line 19256: `@app.route('/api/host-backups/destinations/local', methods=['POST'])`
+- [ ] Line 19293: `@app.route('/api/host-backups/destinations/local', methods=['DELETE'])`
+- [ ] Line 19341: `@app.route('/api/host-backups/destinations/borg', methods=['POST'])`
+- [ ] Line 19448: `@app.route('/api/host-backups/destinations/borg/<name>', methods=['DELETE'])`
+- [ ] Line 19487: `@app.route('/api/host-backups/destinations/pbs', methods=['POST'])`
+- [ ] Line 19563: `@app.route('/api/host-backups/destinations/pbs/<name>', methods=['DELETE'])`
+- [ ] Line 19615: `@app.route('/api/host-backups/ssh-keys/generate', methods=['POST'])`
+- [ ] Line 19685: `@app.route('/api/host-backups/usb-drives', methods=['GET'])`
+- [ ] Line 19723: `@app.route('/api/host-backups/usb-drives/mount', methods=['POST'])`
+- [ ] Line 19759: `@app.route('/api/host-backups/usb-drives/unmount', methods=['POST'])`
+- [ ] Line 19779: `@app.route('/api/host-backups/usb-drives/format', methods=['POST'])`
+- [ ] Line 19859: `@app.route('/api/host-backups/extra-paths', methods=['GET'])`
+- [ ] Line 19873: `@app.route('/api/host-backups/extra-paths', methods=['POST'])`
+- [ ] Line 19896: `@app.route('/api/host-backups/extra-paths', methods=['DELETE'])`
+- [ ] Line 20049: `@app.route('/api/host-backups/remote-archives', methods=['GET'])`
+- [ ] Line 20077: `@app.route('/api/host-backups/remote-archives', methods=['DELETE'])`
+- [ ] Line 20501: `@app.route('/api/host-backups/remote-archives/export', methods=['POST'])`
+- [ ] Line 20560: `@app.route('/api/host-backups/remote-archives/export/<task_id>', methods=['GET'])`
+- [ ] Line 20574: `@app.route('/api/host-backups/remote-archives/export/<task_id>/download', methods=['GET'])`
+- [ ] Line 20613: `@app.route('/api/host-backups/archives', methods=['GET'])`
+- [ ] Line 20903: `@app.route('/api/host-backups/inspect-archive', methods=['POST'])`
+- [ ] Line 21008: `@app.route('/api/host-backups/restore/prepare', methods=['POST'])`
+- [ ] Line 21203: `@app.route('/api/host-backups/restore/cleanup', methods=['POST'])`
+- [ ] Line 21225: `@app.route('/api/host-backups/archives/<path:archive_id>/manifest', methods=['GET'])`
+- [ ] Line 21255: `@app.route('/api/host-backups/archives/<path:archive_id>/preflight', methods=['POST'])`
+- [ ] Line 21295: `@app.route('/api/host-backups/archives/<path:archive_id>/prepare-restore', methods=['POST'])`
+- [ ] Line 21368: `@app.route('/api/host-backups/archives/<path:archive_id>/download', methods=['GET'])`
+- [ ] Line 21388: `@app.route('/api/host-backups/archives/<path:archive_id>', methods=['DELETE'])`
+- [ ] Line 21434: `@app.route('/api/host-backups/archives/<path:archive_id>/log', methods=['GET'])`
+- [ ] Line 21491: `@app.route('/api/system/power/reboot', methods=['POST'])`
+- [ ] Line 21506: `@app.route('/api/system/power/reboot/status', methods=['GET'])`
+- [ ] Line 21512: `@app.route('/api/system/power/shutdown', methods=['POST'])`
+- [ ] Line 21526: `@app.route('/api/system/power/shutdown/status', methods=['GET'])`
+- [ ] Line 21537: `@app.route('/api/system/pve-update/run', methods=['POST'])`
+- [ ] Line 21555: `@app.route('/api/system/pve-update/status', methods=['GET'])`
+- [ ] Line 21561: `@app.route('/api/system/pve-update', methods=['DELETE'])`
+- [ ] Line 21596: `@app.route('/api/proxmenux/self-update/run', methods=['POST'])`
+- [ ] Line 21618: `@app.route('/api/proxmenux/self-update/status', methods=['GET'])`
+
+## `AppImage/scripts/flask_terminal_routes.py`
+
+- [ ] Line 137: `@terminal_bp.route('/api/terminal/health', methods=['GET'])`
+- [ ] Line 143: `@terminal_bp.route('/api/terminal/ticket', methods=['POST'])`
+- [ ] Line 160: `@terminal_bp.route('/api/terminal/search-command', methods=['GET'])`
+- [ ] Line 253: `@sock.route('/ws/terminal')`
+- [ ] Line 416: `@sock.route('/ws/script/<session_id>')`
+
+## `AppImage/scripts/jwt_middleware.py`
+
+- [ ] Line 22: `@app.route('/api/protected')`
+- [ ] Line 160: `@app.route('/api/optional')`
