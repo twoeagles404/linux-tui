@@ -85,6 +85,12 @@ def unavailable(action):
         return 'Linux required; this system supports catalog preview only'
     if not shutil.which(action.argv[0]):
         return f'Required executable is missing: {action.argv[0]}'
+    if action.id == 'usb':
+        try:
+            if not any(Path('/sys/bus/usb/devices').iterdir()):
+                return 'No USB devices are exposed in this environment'
+        except OSError:
+            return 'USB device inventory is not accessible in this environment'
     if action.argv[0] in ('systemctl', 'journalctl') and not Path('/run/systemd/system').is_dir():
         return 'Active systemd environment required'
     return None

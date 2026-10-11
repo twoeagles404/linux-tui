@@ -28,6 +28,15 @@ class CoreTests(unittest.TestCase):
     def test_missing_executable_explained(self, *_):
         self.assertIn('missing', unavailable(ACTIONS[0]))
 
+    @patch('linux_tui.core.platform.system', return_value='Linux')
+    @patch('linux_tui.core.shutil.which', return_value='/usr/bin/lsusb')
+    @patch('linux_tui.core.Path.iterdir', return_value=iter(()))
+    def test_vm_without_usb_devices_is_unavailable(self, *_):
+        with patch('linux_tui.core.subprocess.run') as run:
+            result = run_action('usb')
+            self.assertIn('No USB devices', result['error'])
+            run.assert_not_called()
+
     @patch('linux_tui.core.unavailable', return_value=None)
     def test_fixed_argv_and_failure_propagation(self, _):
         with patch('linux_tui.core.subprocess.run', return_value=subprocess.CompletedProcess(['uname'], 1, '', 'denied')) as run:
