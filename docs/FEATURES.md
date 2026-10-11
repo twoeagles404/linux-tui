@@ -29,6 +29,8 @@ Unit tests exercise command validation/cancellation, config failure recovery, ru
 
 Linux VM smoke tests exercise diagnostics and real whiptail/curses navigation. Sandbox integration tests exercise actual file changes/undo, backups/restore and the running authenticated HTTP monitor. No physical disk is formatted, production network/firewall/share configuration is changed, package upgrades are run, or external notifications are sent during these checks.
 
+Docker lifecycle acceptance has also passed on a disposable network-isolated container on Hetzner; the container and temporary image were removed. Other daemon-backed adapters still need their own acceptance environments. Linux configuration writes/undo acquire per-file locks to reject concurrent Linux TUI changes.
+
 Operations depend on tools, permissions and host capabilities. Incus/LXD need their local daemon; libvirt needs a capable host/default network and virt-install for disk imports; native LXC needs download templates; Compose needs an engine/provider; shares need an installed/running server and appropriate directory permissions. Formatting cannot undo erased data. Package upgrades, service actions, container operations and ZFS actions are native operations without general automatic rollback.
 
 Configuration undo records are stored under `/var/lib/linux-tui/changes`. Snapshots contain secrets: backups and original-file copies are root-only. Local snapshots omit symlinks/special files and are not full-system images. Borg supports a richer directory backup but currently restores only into an empty staging directory.

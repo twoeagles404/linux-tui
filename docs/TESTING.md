@@ -6,15 +6,17 @@ Validated October 10, 2026. Current code is staged at `/opt/linux-tui-ui-test` o
 
 | Target | Python | Unit/CLI/HTTP checks | Diagnostics | Native/curses navigation | Sandbox workflows |
 | --- | --- | --- | --- | --- | --- |
-| Hetzner, Ubuntu KVM VM | 3.14.4 | 42 passed | 13 passed, sensors unavailable | Both passed | All passed |
-| Adminserver, Ubuntu KVM VM | 3.12.3 | 42 passed | 13 passed, sensors unavailable | Both passed | All passed |
-| Windows workstation | 3.14 | 42 passed | Non-Linux execution blocked | Linux-only | Linux-only |
+| Hetzner, Ubuntu KVM VM | 3.14.4 | 43 passed | 13 passed, sensors unavailable | Both passed | All passed |
+| Adminserver, Ubuntu KVM VM | 3.12.3 | 43 passed | 13 passed, sensors unavailable | Both passed | All passed |
+| Windows workstation | 3.14 | 42 passed, 1 POSIX lock test skipped | Non-Linux execution blocked | Linux-only | Linux-only |
 
 `tools/smoke_workflows.py` performs actual temporary-file changes and undo with permission preservation, snapshot creation/checksum verification/selective restore, symlink omission and private backup permissions, and starts the real monitor CLI on localhost to check unauthenticated rejection, token-file permissions and authenticated live Linux metrics. All temporary files/listeners are cleaned up. The earlier Python 3.12 test failure was caused by globally mocking `Path.stat`; the test was corrected without bypassing production token permission checks.
 
 Unit tests additionally verify partial-restore rollback, corrupt/traversal archive rejection, retention preserving unrelated ZIP files, saved sysctl runtime undo, invalid network/firewall inputs, disk eligibility filtering, container rejection for kernel GPU driver installation, and notification filtering/dedup/retry with mocked delivery. No external notification is sent.
 
-These checks do not run GPU installation, physical disk formatting, real VM/container creation, production package upgrades, network/firewall changes, server share creation, ZFS changes or daily timer installation. Those implemented adapters still need end-to-end acceptance on suitable disposable hosts. Full parity and LXC/distro coverage remain incomplete; see [FEATURES.md](FEATURES.md).
+The opt-in `tools/smoke_containers.py --pull` acceptance test passed against Hetzner's local Unix-socket Docker engine: actual start, inspect, logs, restart, stop and remove through the workflow handlers. It used one uniquely named, labelled BusyBox container with networking disabled. Both the test container and newly pulled image were removed afterward; existing containers were not modified.
+
+These checks do not run GPU installation, physical disk formatting, real libvirt/LXC/Incus creation, production package upgrades, network/firewall changes, server share creation, ZFS changes or daily timer installation. Those implemented adapters still need end-to-end acceptance on suitable disposable hosts. Full parity and LXC/distro coverage remain incomplete; see [FEATURES.md](FEATURES.md).
 
 Reproduce the current tests:
 

@@ -1,5 +1,6 @@
 """Reviewed administration workflows; subprocesses always receive argument arrays."""
 import datetime
+from contextlib import contextmanager, nullcontext
 import hashlib
 import json
 import os
@@ -81,7 +82,30 @@ def atomic_write(path, data, mode=0o600):
             os.unlink(temporary)
 
 
+@contextmanager
+def configuration_lock(path, state):
+    lockdir = Path(state) / 'locks'
+    lockdir.mkdir(parents=True, exist_ok=True, mode=0o700)
+    lock = lockdir / (hashlib.sha256(str(Path(path).absolute()).encode()).hexdigest() + '.lock')
+    fd = os.open(lock, os.O_RDWR | os.O_CREAT, 0o600)
+    try:
+        if os.name == 'posix':
+            import fcntl
+            try:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError:
+                raise RuntimeError('Another Linux TUI operation is changing this configuration file.') from None
+        yield
+    finally:
+        os.close(fd)
+
+
 def change_file(path, data, commands=(), state=STATE, rollback_commands=()):
+    with configuration_lock(path, state):
+        return _change_file(path, data, commands, state, rollback_commands)
+
+
+def _change_file(path, data, commands, state, rollback_commands):
     """Record original metadata/content before writing, and roll back on apply failure."""
     path, state = Path(path), Path(state)
     if path.is_symlink():
@@ -106,7 +130,7 @@ def change_file(path, data, commands=(), state=STATE, rollback_commands=()):
         metadata['sha256'] = hashlib.sha256(data).hexdigest()
         atomic_write(transaction / 'record.json', json.dumps(metadata).encode())
     except Exception:
-        restore_file(transaction, reload=False)
+        restore_file(transaction, reload=False, locked=True)
         # Reload the restored configuration as well, without masking the original error.
         for command in (*commands, *rollback_commands):
             try:
@@ -117,9 +141,14 @@ def change_file(path, data, commands=(), state=STATE, rollback_commands=()):
     return transaction
 
 
-def restore_file(transaction, reload=True):
+def restore_file(transaction, reload=True, locked=False):
     transaction = Path(transaction)
     metadata = json.loads((transaction / 'record.json').read_text())
+    with nullcontext() if locked else configuration_lock(metadata['path'], transaction.parent.parent):
+        _restore_file(transaction, metadata, reload)
+
+
+def _restore_file(transaction, metadata, reload):
     path = Path(metadata['path'])
     if path.is_symlink():
         raise ValueError('Configuration target became a symlink; inspect it manually.')

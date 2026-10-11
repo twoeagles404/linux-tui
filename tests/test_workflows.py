@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 import tempfile
 import unittest
@@ -6,10 +7,22 @@ from unittest.mock import Mock, patch
 import zipfile
 
 from linux_tui.backups import create_backup, verify_backup, restore_backup, prune_backups
-from linux_tui.workflows import change_file, restore_file, execute, firewall, name, instances, network_edit, empty_disks, gpu_drivers
+from linux_tui.workflows import change_file, restore_file, execute, firewall, name, instances, network_edit, empty_disks, gpu_drivers, configuration_lock
 
 
 class WorkflowTests(unittest.TestCase):
+    @unittest.skipUnless(os.name == 'posix', 'Runtime configuration locks require Linux/POSIX')
+    def test_concurrent_configuration_change_fails_without_overwriting(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path, state = Path(folder) / 'config', Path(folder) / 'state'
+            path.write_bytes(b'original')
+            with configuration_lock(path, state):
+                with self.assertRaises(RuntimeError):
+                    change_file(path, b'conflicting', state=state)
+                self.assertEqual(path.read_bytes(), b'original')
+            transaction = change_file(path, b'changed', state=state)
+            restore_file(transaction)
+            self.assertEqual(path.read_bytes(), b'original')
     def test_container_cannot_install_host_gpu_drivers(self):
         with patch('linux_tui.workflows.require_root'), patch.dict('linux_tui.workflows.os.environ', {'container': 'lxc'}), patch('linux_tui.workflows.execute') as execute_mock:
             with self.assertRaises(RuntimeError):
