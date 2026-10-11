@@ -22,3 +22,9 @@ jobs:
       - run: python -m linux_tui --catalog
       - if: runner.os == 'Linux'
         run: python tools/smoke_test.py
+      - if: runner.os == 'Linux'
+        name: Install and verify launcher
+        run: |
+          python tools/install.py --prefix "$RUNNER_TEMP/linux tui"
+          "$RUNNER_TEMP/linux tui/bin/linux-tui" --version
+          "$RUNNER_TEMP/linux tui/bin/linux-tui" --discover
