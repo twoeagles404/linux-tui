@@ -18,18 +18,34 @@ REQUIRED = {'system', 'memory', 'processes', 'disks', 'filesystems', 'mounts',
             'addresses', 'routes', 'listeners'}
 
 
-def menu_test():
+def menu_test(backend='auto'):
     import pty
+    import fcntl
+    import struct
+    import termios
+    import signal
+    def controlling_terminal():
+        os.setsid()
+        fcntl.ioctl(0, termios.TIOCSCTTY, 0)
     master, slave = pty.openpty()
-    process = subprocess.Popen([sys.executable, '-m', 'linux_tui'], stdin=slave,
-                               stdout=slave, stderr=slave)
+    fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH', 30, 100, 0, 0))
+    process = subprocess.Popen([sys.executable, '-m', 'linux_tui', '--ui', backend], stdin=slave,
+                               stdout=slave, stderr=slave, env={**os.environ, 'TERM': 'xterm'},
+                               preexec_fn=controlling_terminal)
     os.close(slave)
     transcript = bytearray()
-    sent = False
+    pending = bytearray()
+    phase = 0
+    steps = [(b'Main Linux TUI', b'h\r'),
+             (b'Environment and capabilities', b'\r'),
+             (b'platform: Linux', b'\x1b'),
+             (b'Feature coverage and Proxmox exclusions', b'\x1b'),
+             (b'Main Linux TUI', b'\x1b')]
     deadline = time.monotonic() + 20
     try:
         while time.monotonic() < deadline:
-            if select.select([master], [], [], .2)[0]:
+            ready = select.select([master], [], [], .2)[0]
+            if ready:
                 try:
                     data = os.read(master, 8192)
                 except OSError:
@@ -37,20 +53,25 @@ def menu_test():
                 if not data:
                     break
                 transcript.extend(data)
-                if not sent and b'Choose a diagnostic' in transcript:
-                    os.write(master, b'd\n1\nq\n')
-                    sent = True
+                pending.extend(data)
+            # Wait until drawing completes before typing: newt can flush
+            # early keystrokes while it initializes a newly opened form.
+            if not ready and phase < len(steps) and steps[phase][0] in pending:
+                os.write(master, steps[phase][1])
+                phase += 1
+                pending.clear()
             if process.poll() is not None:
                 break
         process.wait(timeout=2)
         text = transcript.decode(errors='replace')
-        return process.returncode == 0 and all(value in text for value in
-            ('read-only foundation', '"platform": "Linux"', '"action": "system"', '"ok": true'))
+        return process.returncode == 0 and phase == len(steps) and 'Main Linux TUI' in text
     except subprocess.TimeoutExpired:
         return False
     finally:
+        if os.environ.get('LINUX_TUI_SMOKE_TRANSCRIPT'):
+            Path(os.environ['LINUX_TUI_SMOKE_TRANSCRIPT'] + '-' + backend).write_bytes(transcript)
         if process.poll() is None:
-            process.kill()
+            os.killpg(process.pid, signal.SIGKILL)
         process.wait()
         os.close(master)
 
@@ -69,10 +90,12 @@ def main():
         outcomes.append({'action': action.id, 'status': 'passed' if result['ok'] else 'failed',
                          'exit_code': result.get('exit_code'),
                          'output_present': bool(result.get('stdout'))})
-    menu_ok = menu_test()
+    menu_results = {backend: menu_test(backend) for backend in ('auto', 'curses')}
+    menu_ok = all(menu_results.values())
     required_ok = all(item['status'] == 'passed' for item in outcomes if item['action'] in REQUIRED)
     report = {'python': platform.python_version(), 'platform': platform.system(),
               'diagnostics': outcomes, 'interactive_menu': 'passed' if menu_ok else 'failed',
+              'menu_backends': menu_results,
               'required_diagnostics_passed': required_ok}
     print(json.dumps(report, indent=2))
     operational_ok = not any(item['status'] == 'failed' for item in outcomes)

@@ -2,7 +2,15 @@
 
 A portable Linux administration toolkit inspired by [ProxMenux](https://github.com/MacRimi/ProxMenux), intended for Linux VMs, LXC guests and bare-metal systems without Proxmox integration.
 
-**Status: research baseline and working read-only foundation. Full retained feature parity is not implemented yet.**
+**Version 0.2: classic full-screen administration menus. Full retained ProxMenux feature parity is not implemented yet.**
+
+The default interface uses the same blue-screen, bordered menu style as ProxMenux, with category submenus, arrow-key navigation and OK/Cancel buttons. It uses `dialog` or `whiptail` when installed, with a built-in curses fallback.
+
+Main categories: post-install settings, hardware/GPU/TPU, virtual machines and containers, disk/storage, mounts/shares, applications/helper tools, networking, security, utilities, backup/restore, help and settings.
+
+Implemented operations include package refresh/upgrades, installation of selected utilities, QEMU guest agent, Fail2ban and Lynis; system diagnostics; and native Linux inventory/status tools. Package changes require root, a command preview and explicit confirmation. Package managers handle their own final prompts.
+
+Unfinished features are identified in their categories: automated tuning and rollback, VM creation and passthrough, disk formatting/SMART scheduling, share/network/firewall editing, backup/restore orchestration, managed app recipes, web monitoring, notifications and translations. Menu categories do not imply these workflows are already implemented.
 
 The [feature scope](docs/SCOPE.md) captures retained, adapted and excluded functionality. The [architecture](docs/ARCHITECTURE.md) defines runtime boundaries, adapters, delivery stages and acceptance requirements. The [source inventory](docs/research/upstream-files.md) accounts for every tracked file at a pinned upstream commit; the accompanying JSON contains line-level source evidence.
 
@@ -46,7 +54,9 @@ linux-tui --catalog
 linux-tui --run disks
 ```
 
-Choose a numbered diagnostic from the menu, `d` for environment discovery, or `q` to quit. Commands work over SSH and inside Linux guests. Missing dependencies and permissions are reported per diagnostic; the installer does not install diagnostic utilities automatically. Run as your normal user first; some logs or hardware data may require additional permissions.
+Use Up/Down to select a category and Enter to open it. Tab switches OK/Cancel; Escape or Cancel goes back; `0` on the main menu exits. Environment discovery is under Help and Info Commands. Output appears in scrollable dialogs rather than a numbered text prompt. To force the built-in blue-screen backend, run `linux-tui --ui curses`.
+
+Commands work over SSH and inside Linux guests. Missing tools and permissions are explained. The installer does not change system packages. Selecting a package operation inside the menu can install/update system packages after confirmation; some packages have installation hooks that start services. Run as your normal user for inspection, or as root for package administration.
 
 Installed files: `~/.local/share/linux-tui/linux_tui/` and `~/.local/bin/linux-tui`. The launcher uses the Python interpreter used during setup. A custom installation prefix is available with `python3 tools/install.py --prefix /your/path`.
 
@@ -83,9 +93,9 @@ python -m unittest discover -s tests -v
 python tools/smoke_test.py
 ```
 
-The menu currently offers 14 read-only diagnostics covering system, storage, networking, services and hardware. Missing commands and non-Linux systems are explicitly reported. Linux command output and permissions depend on the environment. GNU-specific options may fail on BusyBox; those failures are returned rather than claiming successful collection. Windows supports catalog/research preview only. No packages are installed, services changed or disks modified.
+The CLI retains 14 read-only diagnostics for scripts and automation. Interactive category menus additionally expose reviewed package operations and native Linux tools. Missing commands and non-Linux systems are explicitly reported. GNU-specific options may fail on BusyBox; those failures are returned rather than claiming successful collection. Windows supports catalog/research preview and unit tests only.
 
-The smoke test requires Linux, exercises every diagnostic, and opens a pseudo-terminal to verify discovery, action selection and exit in the actual interactive menu. Missing optional hardware commands are reported as unavailable; failed commands and missing core commands fail the run. GitHub Actions runs unit/CLI checks on Windows and Ubuntu with Python 3.11 and 3.14, plus live smoke tests on Ubuntu.
+The smoke test requires Linux, exercises every diagnostic, and opens pseudo-terminals to verify category navigation, environment discovery, return and exit with both automatic and curses UI backends. It does not apply package changes. Missing optional hardware commands are reported as unavailable; failed commands and missing core commands fail the run. GitHub Actions runs unit/CLI checks on Windows and Ubuntu with Python 3.11 and 3.14, plus live smoke and launcher-install tests on Ubuntu.
 
 Live VM results are documented in [TESTING.md](docs/TESTING.md). The current release is a terminal application; a web dashboard and full administration workflows are planned.
 

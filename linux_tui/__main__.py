@@ -10,11 +10,12 @@ def show(value):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Portable Linux TUI — read-only foundation')
+    parser = argparse.ArgumentParser(description='Portable Linux administration with full-screen category menus')
     parser.add_argument('--version', action='version', version=__version__)
     parser.add_argument('--discover', action='store_true', help='Print environment discovery as JSON')
     parser.add_argument('--catalog', action='store_true', help='Print implemented diagnostics and availability')
     parser.add_argument('--run', choices=[action.id for action in ACTIONS], help='Run an allowlisted read-only diagnostic')
+    parser.add_argument('--ui', choices=['auto', 'curses'], default='auto', help='Interactive menu backend')
     args = parser.parse_args()
     if args.discover:
         show(discover())
@@ -28,22 +29,10 @@ def main():
         parser.print_help()
     else:
         try:
-            while True:
-                print('\nLinux TUI | 0.1.0 | read-only foundation\n')
-                print('d. Environment discovery')
-                for index, action in enumerate(catalog(), 1):
-                    reason = action['unavailable_reason']
-                    suffix = f' [unavailable: {reason}]' if reason else ''
-                    print(f"{index:2}. {action['category']} / {action['title']}{suffix}")
-                choice = input('\nChoose a diagnostic, d, or q: ').strip().lower()
-                if choice == 'q':
-                    break
-                if choice == 'd':
-                    show(discover())
-                elif choice.isdigit() and 1 <= int(choice) <= len(ACTIONS):
-                    show(run_action(ACTIONS[int(choice) - 1].id))
-                else:
-                    print('Choose one of the listed entries.')
+            if sys.platform != 'linux':
+                parser.exit(1, 'Interactive menus require Linux. Use --catalog or --discover for preview.\n')
+            from .menus import launch
+            return launch(args.ui)
         except (EOFError, KeyboardInterrupt):
             print('\nExited.')
     return 0

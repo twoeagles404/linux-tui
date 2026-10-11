@@ -2,7 +2,7 @@
 
 ## Runtime
 
-Python 3.11+ core with no mandatory third-party dependency for diagnostics. Separate environment discovery, collectors, capability policy, action planning, execution, persistent state and presentation. No Proxmox SDK, API, executable or filesystem dependency. The initial menu uses standard terminal input; a richer keyboard-driven TUI can use a frontend library later without changing core behavior.
+Python 3.11+ core with no mandatory pip dependency. Separate environment discovery, collectors, capability policy, action planning, execution, persistent state and presentation. No Proxmox SDK, API, executable or filesystem dependency. Version 0.2 uses classic full-screen dialog/whiptail category menus with a built-in curses fallback. Command-line JSON diagnostics remain available for scripts.
 
 Discover `/etc/os-release`, architecture, init system, virtualization/container context, cgroup limits, package manager, network/firewall owner, mounted filesystems, available executables, effective UID and actual operation permissions. Root is not a complete capability test. Report ambiguous/unavailable capabilities explicitly.
 
