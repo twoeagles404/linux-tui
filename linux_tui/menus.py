@@ -2,9 +2,15 @@
 import shutil
 import subprocess
 from . import __version__
-from .admin import TOOLS, apply_package
+from .admin import TOOLS, ADMIN_TOOLS, apply_package
 from .core import discover, run_action
 from .ui import TerminalUI
+from .workflows import WORKFLOWS, dispatch_workflow
+from .backups import backup_menu
+from .notifications import notification_menu
+
+WORKFLOWS['backups'] = backup_menu
+WORKFLOWS['notifications'] = notification_menu
 
 MAIN = (
     ('1', 'Settings post-install Linux'),
@@ -25,33 +31,44 @@ MAIN = (
 SECTIONS = {
     '1': [('refresh', 'Refresh package repositories'), ('upgrade', 'Update system packages'),
           ('guest-agent', 'Install QEMU guest agent'), ('tools', 'Install common CLI utilities'),
+          ('profiles', 'Apply / undo post-install configuration profiles'),
+          ('admin-tools', 'Install storage / share / virtualization tools'),
+          ('system-settings', 'Time zone, NTP and hostname'),
+          ('manage-services', 'Start, stop, restart and enable services'),
           ('services', 'Review failed services'), ('logs', 'Review system warnings')],
     '2': [('pci', 'PCI devices / GPU inventory'), ('usb', 'USB devices / Coral inventory'),
           ('sensors', 'Temperatures and sensors'), ('gpu', 'NVIDIA GPU status'),
+          ('gpu-drivers', 'Install / update GPU or Coral repository packages'),
           ('hardware-help', 'GPU/TPU installation and passthrough support')],
-    '3': [('libvirt', 'List libvirt virtual machines'), ('lxc', 'List native LXC containers'),
+    '3': [('instances', 'Create and manage local VMs / containers'),
+          ('libvirt', 'List libvirt virtual machines'), ('lxc', 'List native LXC containers'),
           ('incus', 'List Incus instances'), ('lxd', 'List LXD instances'),
           ('virt-help', 'Host capabilities and creation support')],
     '4': [('disks', 'Disks and partitions'), ('filesystems', 'Filesystem usage'),
-          ('mounts', 'Mount inventory'), ('zfs', 'ZFS pool status'), ('storage-help', 'Disk changes and SMART support')],
+          ('mounts', 'Mount inventory'), ('zfs-tools', 'ZFS snapshots, scrub and TRIM'), ('smart', 'SMART health and disk self-tests'),
+          ('format-disk', 'Format an empty, unused whole disk (destructive)')],
     '5': [('mounts', 'Mounted filesystems and shares'), ('fstab', 'Persistent mounts (fstab)'),
           ('nfs', 'NFS exports'), ('samba', 'Validate and show Samba configuration'),
-          ('share-help', 'Mount and share administration support')],
+          ('mount-edit', 'Add persistent mounts / mount / unmount'), ('shares', 'Create NFS / authenticated SMB server shares')],
     '6': [('docker', 'Docker containers'), ('podman', 'Podman containers'),
-          ('tools', 'Install common CLI utilities'), ('apps-help', 'Application recipe support')],
+          ('containers', 'Manage containers / pull images'), ('compose', 'Deploy / update / stop Compose projects'),
+          ('tools', 'Install common CLI utilities')],
     '7': [('addresses', 'Network interfaces and addresses'), ('routes', 'Routing tables'),
           ('listeners', 'Listening sockets'), ('networkctl', 'systemd network status'),
-          ('nmcli', 'NetworkManager connections'), ('network-help', 'Network configuration support')],
-    '8': [('fail2ban-install', 'Install Fail2ban'), ('fail2ban-status', 'Fail2ban status'),
+          ('nmcli', 'NetworkManager connections'), ('network-tools', 'Ping, route tracing, DNS and traffic counters'),
+          ('network-edit', 'Temporary IPv4 settings with automatic rollback (NM)')],
+    '8': [('fail2ban-install', 'Install Fail2ban'), ('fail2ban-manage', 'SSH jail / bans / trusted network'), ('fail2ban-status', 'Fail2ban status'),
           ('lynis-install', 'Install Lynis'), ('lynis', 'Run Lynis system audit'),
+          ('firewall-edit', 'Add / remove firewall port rules'),
           ('ufw', 'UFW firewall status'), ('firewalld', 'Firewalld status'), ('nft', 'nftables rules')],
-    '9': [('tools', 'Install common CLI utilities'), ('processes', 'Running processes'),
+    '9': [('monitor', 'Resource monitoring / web dashboard'), ('tools', 'Install common CLI utilities'), ('processes', 'Running processes'),
           ('memory', 'Memory usage'), ('services', 'Failed services'), ('logs', 'System warnings')],
-    'b': [('backup-help', 'Backup and restore implementation status'), ('borg', 'Borg version / availability'),
+    'b': [('backups', 'Create / verify / restore configuration snapshots'), ('borg', 'Borg version / availability'),
           ('restic', 'Restic version / availability')],
     'h': [('discovery', 'Environment and capabilities'), ('system', 'Kernel and architecture'),
           ('scope', 'Feature coverage and Proxmox exclusions'), ('keys', 'Keyboard controls')],
-    's': [('version', 'Version information'), ('backend', 'Terminal UI backend'), ('scope', 'Implementation status')],
+    's': [('notifications', 'Notification channels / tests / history'), ('version', 'Version information'),
+          ('backend', 'Terminal UI backend'), ('scope', 'Implementation status')],
 }
 
 COMMANDS = {
@@ -66,15 +83,10 @@ COMMANDS = {
     'nft': ('nft', 'list', 'ruleset'), 'borg': ('borg', '--version'), 'restic': ('restic', 'version'),
 }
 
-STATUS = 'The full-screen category menus, diagnostics, native tool launchers and reviewed package operations are implemented. Full portable ProxMenux parity is still incomplete.\n\nNot yet implemented: tuning/rollback profiles, VM creation, device passthrough, disk formatting, share editing, network/firewall editing, backup/restore orchestration, web dashboard, notifications and translations.\n\nProxmox APIs, PVE commands, repositories, clusters, PBS and subscription modifications are excluded.'
+STATUS = 'Implemented: full-screen menus; packages; seven reversible profiles; time/hostname and services; native VM/container creation and lifecycle; Docker/Podman/Compose; SMART tests and empty-disk formatting; ZFS snapshots/scrub/TRIM; local/NFS mounts and NFS/SMB exports; firewall port rules and SSH jails; NetworkManager temporary IPv4 changes with checkpoints; local configuration snapshots, undo and daily retention; Borg encrypted backup/staged restore; authenticated web metrics/history and five notification channels.\n\nFull retained parity is still incomplete. Remaining work includes GPU/TPU drivers and passthrough, remaining tuning profiles, network owner adapters, iSCSI/SMB client setup, backup recovery/remapping, VM templates/import-export, web TOTP/PWA/terminal, AI enrichment, Apprise and translations. See docs/FEATURES.md for exact coverage and validation limits.\n\nProxmox APIs, PVE commands, repositories, clusters, PBS and subscription modifications are excluded.'
 GUIDES = {
     'hardware-help': 'GPU and TPU inventory works when devices are exposed to this guest. Automated driver installation and host passthrough workflows are not implemented yet. A container cannot change host drivers or assign devices from inside the guest.',
-    'virt-help': 'Inventory uses local libvirt, native LXC, Incus or LXD tools when installed. Creation, lifecycle and migration wizards are not implemented yet. Ordinary guests cannot manage their hypervisor. No Proxmox API is used.',
-    'storage-help': 'Disk, filesystem, mount and ZFS inspection is available. Formatting, SMART test scheduling and disk assignment workflows are not implemented yet.',
-    'share-help': 'Mount inventory, fstab, NFS exports and Samba configuration inspection are available. Creating/editing shares and persistent mounts is not implemented yet.',
-    'apps-help': 'Docker/Podman inventory and CLI utility installation are available. Managed application recipes, updates and container recreation are not implemented yet. No external community scripts are downloaded or executed.',
-    'network-help': 'Address, route, socket and network-manager inspection is available. Editing/restarting network configuration with automatic SSH recovery is not implemented yet.',
-    'backup-help': 'Backup and restore orchestration is not implemented yet. Borg and Restic availability checks are available. The project does not currently create or restore system backups.',
+    'virt-help': 'Use Create and manage local VMs / containers for libvirt XML definitions or qcow2 imports, native LXC downloads, and Incus/LXD image launches. Local lifecycle controls are available. Installed tools and a capable Linux host are required; ordinary guests cannot manage their external hypervisor. Templates, passthrough and migration remain incomplete. No Proxmox API is used.',
     'scope': STATUS,
     'keys': 'Use Up/Down to move, Enter to choose, Tab to move between OK and Cancel, and Escape/Cancel to return. Main-menu 0 exits. Package changes show a command preview and default to Cancel; the package manager also prompts before changes.',
 }
@@ -87,7 +99,9 @@ def display_result(result):
 
 
 def dispatch(ui, key):
-    if key in GUIDES:
+    if key in WORKFLOWS:
+        dispatch_workflow(ui, key)
+    elif key in GUIDES:
         ui.message('Feature information', GUIDES[key])
     elif key == 'discovery':
         info = discover()
@@ -101,9 +115,10 @@ def dispatch(ui, key):
     elif key in ('guest-agent', 'fail2ban-install', 'lynis-install'):
         package = {'guest-agent': 'qemu-guest-agent', 'fail2ban-install': 'fail2ban', 'lynis-install': 'lynis'}[key]
         apply_package(ui, 'install', (package,))
-    elif key == 'tools':
+    elif key in ('tools', 'admin-tools'):
         while True:
-            package = ui.menu('Install CLI utilities', [(name, name) for name in TOOLS] + [('0', 'Return')])
+            package = ui.menu('Install administration tools' if key == 'admin-tools' else 'Install CLI utilities',
+                              [(name, name) for name in (ADMIN_TOOLS if key == 'admin-tools' else TOOLS)] + [('0', 'Return')])
             if package is None or package == '0':
                 return
             apply_package(ui, 'install', (package,))

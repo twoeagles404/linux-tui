@@ -3,13 +3,14 @@ from unittest.mock import Mock, patch
 from linux_tui.admin import apply_package, package_plan
 from linux_tui.core import ACTIONS
 from linux_tui.menus import COMMANDS, GUIDES, MAIN, SECTIONS, launch
+from linux_tui.workflows import WORKFLOWS
 
 
 class MenuTests(unittest.TestCase):
     def test_category_items_have_handlers(self):
-        handlers = set(COMMANDS) | set(GUIDES) | {a.id for a in ACTIONS} | {
+        handlers = set(COMMANDS) | set(GUIDES) | set(WORKFLOWS) | {a.id for a in ACTIONS} | {
             'refresh', 'upgrade', 'guest-agent', 'fail2ban-install', 'lynis-install',
-            'tools', 'discovery', 'version', 'backend'}
+            'tools', 'admin-tools', 'discovery', 'version', 'backend'}
         self.assertEqual(set(SECTIONS), {key for key, _ in MAIN if key != '0'})
         for entries in SECTIONS.values():
             self.assertTrue(all(key in handlers for key, _ in entries))
@@ -25,6 +26,11 @@ class MenuTests(unittest.TestCase):
     def test_package_names_cannot_be_commands(self, _):
         with self.assertRaises(ValueError):
             package_plan('install', ('curl; reboot',))
+
+    @patch('linux_tui.admin.shutil.which', side_effect=lambda name: '/usr/bin/apt-get' if name == 'apt-get' else None)
+    def test_admin_tool_names_map_to_native_apt_packages(self, _):
+        self.assertEqual(package_plan('install', ('borg', 'nfs-client', 'libvirt', 'virt-install')),
+                         ['apt-get', 'install', 'borgbackup', 'nfs-common', 'libvirt-daemon-system', 'virtinst'])
 
     @patch('linux_tui.admin.shutil.which', return_value='/usr/bin/apt-get')
     @patch('linux_tui.admin.os.geteuid', return_value=0, create=True)

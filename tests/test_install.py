@@ -17,7 +17,7 @@ class InstallTests(unittest.TestCase):
             result = subprocess.run([sys.executable, '-m', 'linux_tui', '--version'],
                                     cwd=folder, env=environment, capture_output=True, text=True, timeout=10)
             self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertEqual(result.stdout.strip(), '0.2.0')
+            self.assertEqual(result.stdout.strip(), '0.3.0')
             self.assertTrue(launcher.is_file())
 
     @patch('tools.install.platform.system', return_value='Linux')

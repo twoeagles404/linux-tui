@@ -25,6 +25,9 @@ class TerminalUI:
             return selection.read().strip() if result.returncode == 0 else None
 
     def menu(self, title, entries, prompt='Select an option:'):
+        if not entries:
+            self.message(title, 'No eligible entries are available in this environment.')
+            return None
         if self.program:
             flattened = [value for key, label in entries for value in (key, label)]
             return self.invoke(title, lambda h, w: ['--menu', prompt, str(h), str(w), str(max(3, h - 8)), *flattened])
@@ -48,7 +51,35 @@ class TerminalUI:
             self.curses_view(title, None, text or '(No output)')
 
     def confirm(self, title, text):
-        return self.menu(title, [('no', 'Cancel'), ('yes', 'Apply these changes')], text) == 'yes'
+        self.message(title, text)
+        return self.menu(title, [('no', 'Cancel'), ('yes', 'Apply these changes')], 'Apply the changes shown in the review?') == 'yes'
+
+    def input(self, title, prompt, initial='', secret=False):
+        if self.program:
+            return self.invoke(title, lambda h, w: ['--passwordbox' if secret else '--inputbox', prompt, str(h), str(w), initial])
+        import curses
+        def edit(window):
+            value = initial
+            curses.curs_set(1)
+            while True:
+                window.erase()
+                rows, columns = window.getmaxyx()
+                window.addnstr(1, 2, title, max(1, columns - 4))
+                window.addnstr(3, 2, prompt, max(1, columns - 4))
+                displayed = '*' * len(value) if secret else value
+                window.addnstr(5, 2, displayed[-max(1, columns - 5):], max(1, columns - 4))
+                window.addnstr(min(rows - 1, 7), 2, 'Enter: accept   Esc: cancel', max(1, columns - 4))
+                window.refresh()
+                key = window.get_wch()
+                if key == '\x1b':
+                    return None
+                if key in ('\n', '\r'):
+                    return value
+                if key in ('\b', '\x7f', curses.KEY_BACKSPACE):
+                    value = value[:-1]
+                elif isinstance(key, str) and key.isprintable():
+                    value += key
+        return curses.wrapper(edit)
 
     def curses_view(self, title, entries, prompt):
         import curses

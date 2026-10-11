@@ -23,6 +23,8 @@ jobs:
       - if: runner.os == 'Linux'
         run: python tools/smoke_test.py
       - if: runner.os == 'Linux'
+        run: python tools/smoke_workflows.py
+      - if: runner.os == 'Linux'
         name: Install and verify launcher
         run: |
           python tools/install.py --prefix "$RUNNER_TEMP/linux tui"

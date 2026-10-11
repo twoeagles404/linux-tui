@@ -1,6 +1,7 @@
 import argparse
 import json
 import sys
+from pathlib import Path
 from . import __version__
 from .core import ACTIONS, catalog, discover, run_action
 
@@ -16,8 +17,24 @@ def main():
     parser.add_argument('--catalog', action='store_true', help='Print implemented diagnostics and availability')
     parser.add_argument('--run', choices=[action.id for action in ACTIONS], help='Run an allowlisted read-only diagnostic')
     parser.add_argument('--ui', choices=['auto', 'curses'], default='auto', help='Interactive menu backend')
+    parser.add_argument('--monitor', action='store_true', help='Run the authenticated read-only web monitor')
+    parser.add_argument('--host', default='127.0.0.1', help='Monitor listen address (default: localhost)')
+    parser.add_argument('--port', type=int, default=8008, help='Monitor port (default: 8008)')
+    parser.add_argument('--monitor-state', type=Path, help='Monitor token and metrics directory')
     args = parser.parse_args()
-    if args.discover:
+    if args.monitor:
+        if sys.platform != 'linux':
+            parser.error('The resource monitor requires Linux.')
+        if not 1 <= args.port <= 65535:
+            parser.error('--port must be 1–65535')
+        from .monitor import serve, DEFAULT_STATE
+        try:
+            serve(args.host, args.port, args.monitor_state or DEFAULT_STATE)
+        except KeyboardInterrupt:
+            pass
+        except (OSError, ValueError) as error:
+            parser.exit(1, str(error) + '\n')
+    elif args.discover:
         show(discover())
     elif args.catalog:
         show(catalog())
